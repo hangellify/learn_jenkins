@@ -15,7 +15,8 @@ pipeline {
                     node --version
                     npm --version
                     rm -rf node_modules package-lock.json.lock
-                    npm ci --cache
+                    export npm_config_cache=/tmp/.npm-cache
+                    npm ci --cache $npm_config_cache
                     npm run build
                     ls -la
                 '''
