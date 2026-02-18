@@ -49,7 +49,9 @@ pipeline {
                     mkdir -p $npm_config_cache
 
                     npm install serve --cache $npm_config_cache
-                    node_modules/.bin/serve -s build
+                    node_modules/.bin/serve -s build &
+
+                    sleep 10
 
                     npx playwright test
                 '''
