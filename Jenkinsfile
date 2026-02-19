@@ -101,12 +101,57 @@ pipeline {
 
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --prod
-
-                    Echo "Nice done"
                 '''
             }
         }
 
-    }
+        stage('Prod E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.58.2-noble'
+                    reuseNode true
+                }
+            }
+            environment {
+                CI_ENVIRONMENT_URL = 'https://startling-pie-e49a28.netlify.app'
+            }
 
+            steps {
+                sh '''
+                    npx playwright test --reporter=html
+                '''
+            }
+            post {
+                always {
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Prod HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                }
+            }
+        }
+
+    }
+        //                    agent {
+        //                        docker {
+        //                            image 'mcr.microsoft.com/playwright:v1.58.2-noble'
+        //                            reuseNode true
+        //                        }
+        //                    }
+        //                    steps {
+        //                        sh '''
+        //                            export npm_config_cache=/tmp/.npm-cache
+        //                            mkdir -p $npm_config_cache
+        //
+        //                            npm install serve --cache $npm_config_cache
+        //                            node_modules/.bin/serve -s build &
+        //
+        //                            sleep 10
+        //
+        //                            npx playwright test --reporter=html
+        //                        '''
+        //                    }
+        //                    post {
+        //                        always {
+        //                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+        //                        }
+        //                    }
+        //                }
 }
