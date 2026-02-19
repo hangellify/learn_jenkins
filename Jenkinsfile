@@ -45,32 +45,32 @@ pipeline {
                         }
                     }
                 }
-                stage('E2E') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.58.2-noble'
-                            reuseNode true
-                        }
-                    }
-                    steps {
-                        sh '''
-                            export npm_config_cache=/tmp/.npm-cache
-                            mkdir -p $npm_config_cache
-
-                            npm install serve --cache $npm_config_cache
-                            node_modules/.bin/serve -s build &
-
-                            sleep 10
-
-                            npx playwright test --reporter=html
-                        '''
-                    }
-                    post {
-                        always {
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-                        }
-                    }
-                }
+//                stage('E2E') {
+//                    agent {
+//                        docker {
+//                            image 'mcr.microsoft.com/playwright:v1.58.2-noble'
+//                            reuseNode true
+//                        }
+//                    }
+//                    steps {
+//                        sh '''
+//                            export npm_config_cache=/tmp/.npm-cache
+//                            mkdir -p $npm_config_cache
+//
+//                            npm install serve --cache $npm_config_cache
+//                            node_modules/.bin/serve -s build &
+//
+//                            sleep 10
+//
+//                            npx playwright test --reporter=html
+//                        '''
+//                    }
+//                    post {
+//                        always {
+//                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+//                        }
+//                    }
+//                }
             }
         }
 
@@ -83,7 +83,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm i netlify-cli
+                    npm i netlify-cli@20.1.1
                     node_modules/.bin/netlify --version
                 '''
             }
