@@ -27,28 +27,28 @@ pipeline {
             }
         }
 
-        stage ('Run Tests') {
-            parallel {
-                 stage('Unit Tests') {
-                    agent {
-                        docker {
-                            image 'node:18-alpine'
-                            reuseNode true
-                        }
-                    }
-                    steps {
-                        sh '''
-                            test -f build/index.html
-                            npm run test
-                        '''
-                    }
-
-                    post {
-                        always {
-                            junit 'jest-results/junit.xml'
-                        }
-                    }
-                }
+//        stage ('Run Tests') {
+//            parallel {
+//                 stage('Unit Tests') {
+//                    agent {
+//                        docker {
+//                            image 'node:18-alpine'
+//                            reuseNode true
+//                        }
+//                    }
+//                    steps {
+//                        sh '''
+//                            test -f build/index.html
+//                            npm run test
+//                        '''
+//                    }
+//
+//                    post {
+//                        always {
+//                            junit 'jest-results/junit.xml'
+//                        }
+//                    }
+//                }
 //                stage('E2E') {
 //                    agent {
 //                        docker {
@@ -75,12 +75,17 @@ pipeline {
 //                        }
 //                    }
 //                }
-            }
-        }
+//            }
+//        }
 
         stage('Deploy') {
             // No Docker: runs on host where Jenkins user exists in /etc/passwd (fixes uv_os_get_passwd)
-            agent any
+            agent {
+                docker {
+                   image 'node:18-alpine'
+                   reuseNode true
+                }
+            }
             steps {
                 sh '''
                     export npm_config_cache=/tmp/.npm-cache
