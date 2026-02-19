@@ -22,41 +22,48 @@ pipeline {
                 '''
             }
         }
-        stage('Test') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
+
+
+        stage ('Run Tests') {
+            parallel {
+                 stage('Test') {
+                    agent {
+                        docker {
+                            image 'node:18-alpine'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            test -f build/index.html
+                            npm run test
+                        '''
+                    }
+                }
+                stage('E2E') {
+                    agent {
+                        docker {
+                            image 'mcr.microsoft.com/playwright:v1.58.2-noble'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            export npm_config_cache=/tmp/.npm-cache
+                            mkdir -p $npm_config_cache
+
+                            npm install serve --cache $npm_config_cache
+                            node_modules/.bin/serve -s build &
+
+                            sleep 10
+
+                            npx playwright test --reporter=html
+                        '''
+                    }
                 }
             }
-            steps {
-                sh '''
-                    test -f build/index.html
-                    npm run test
-                '''
-            }
         }
-        stage('E2E') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.58.2-noble'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                    export npm_config_cache=/tmp/.npm-cache
-                    mkdir -p $npm_config_cache
 
-                    npm install serve --cache $npm_config_cache
-                    node_modules/.bin/serve -s build &
-
-                    sleep 10
-
-                    npx playwright test --reporter=html
-                '''
-            }
-        }
     }
     post {
         always {
