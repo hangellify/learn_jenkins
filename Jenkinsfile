@@ -92,7 +92,11 @@ pipeline {
                     export HOME=/tmp   # Writable homedir for CLI config/cache
 
                     npm install netlify-cli@20.1.1 --cache $npm_config_cache
-                    node_modules/.bin/netlify --version
+
+                    echo "Node deps"
+                    ls -la node_modules/.bin
+
+                    node_modules/.bin/netlify --help
 
                     echo "Deployed to production"
                 '''
