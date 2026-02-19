@@ -81,7 +81,7 @@ pipeline {
         stage('Deploy') {
             agent {
                 docker {
-                    image 'node:18-alpine'
+                    image 'node:18'   // Debian-based: proper /etc/passwd for Netlify CLI (no root needed)
                     reuseNode true
                 }
             }
@@ -89,11 +89,12 @@ pipeline {
                 sh '''
                     export npm_config_cache=/tmp/.npm-cache
                     mkdir -p $npm_config_cache
+                    export HOME=/tmp   # Writable homedir for CLI config/cache
 
                     npm install netlify-cli@20.1.1 --cache $npm_config_cache
                     node_modules/.bin/netlify --version
 
-                    echo "Deploing to production"
+                    echo "Deployed to production"
                 '''
             }
         }
