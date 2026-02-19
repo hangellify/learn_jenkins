@@ -79,24 +79,15 @@ pipeline {
         }
 
         stage('Deploy') {
-            agent {
-                docker {
-                    image 'node:18'   // Debian-based: proper /etc/passwd for Netlify CLI (no root needed)
-                    reuseNode true
-                }
-            }
+            // No Docker: runs on host where Jenkins user exists in /etc/passwd (fixes uv_os_get_passwd)
+            agent any
             steps {
                 sh '''
                     export npm_config_cache=/tmp/.npm-cache
                     mkdir -p $npm_config_cache
-                    export HOME=/tmp   # Writable homedir for CLI config/cache
 
                     npm install netlify-cli@20.1.1 --cache $npm_config_cache
-
-                    echo "Node deps"
-                    ls -la node_modules/.bin
-
-                    node_modules/.bin/netlify --help
+                    node_modules/.bin/netlify --version
 
                     echo "Deployed to production"
                 '''
