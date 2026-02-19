@@ -83,8 +83,11 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm i netlify-cli@20.1.1
-                    node_modules/.bin/netlify --version
+                export npm_config_cache=/tmp/.npm-cache
+                mkdir -p $npm_config_cache
+
+                npm install netlify-cli@20.1.1 --cache $npm_config_cache
+                node_modules/.bin/netlify --version
                 '''
             }
         }
