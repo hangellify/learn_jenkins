@@ -97,6 +97,9 @@ pipeline {
                     npm install netlify-cli@20.1.1 --cache $npm_config_cache
                     node_modules/.bin/netlify --version
 
+                    npm install node-jq --cache $npm_config_cache
+                    node_modules/.bin/node-jq --version
+
                     echo "Deployed to production: $NETLIFY_SITE_ID"
 
                     node_modules/.bin/netlify status
