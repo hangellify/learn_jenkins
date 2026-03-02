@@ -34,56 +34,52 @@ pipeline {
             }
         }
 
-//        stage ('Run Tests') {
-//            parallel {
-//                 stage('Unit Tests') {
-//                    agent {
-//                        docker {
-//                            image 'node:18-alpine'
-//                            reuseNode true
-//                        }
-//                    }
-//                    steps {
-//                        sh '''
-//                            test -f build/index.html
-//                            npm run test
-//                        '''
-//                    }
-//
-//                    post {
-//                        always {
-//                            junit 'jest-results/junit.xml'
-//                        }
-//                    }
-//                }
-//                stage('E2E') {
-//                    agent {
-//                        docker {
-//                            image 'mcr.microsoft.com/playwright:v1.58.2-noble'
-//                            reuseNode true
-//                        }
-//                    }
-//                    steps {
-//                        sh '''
-//                            export npm_config_cache=/tmp/.npm-cache
-//                            mkdir -p $npm_config_cache
-//
-//                            npm install serve --cache $npm_config_cache
-//                            node_modules/.bin/serve -s build &
-//
-//                            sleep 10
-//
-//                            npx playwright test --reporter=html
-//                        '''
-//                    }
-//                    post {
-//                        always {
-//                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        stage ('Run Tests') {
+            parallel {
+                 stage('Unit Tests') {
+                    agent {
+                        docker {
+                            image 'my-playwright'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            test -f build/index.html
+                            npm run test
+                        '''
+                    }
+
+                    post {
+                        always {
+                            junit 'jest-results/junit.xml'
+                        }
+                    }
+                }
+                stage('E2E') {
+                    agent {
+                        docker {
+                            image 'my-playwright'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            serve -s build &
+
+                            sleep 10
+
+                            npx playwright test --reporter=html
+                        '''
+                    }
+                    post {
+                        always {
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                        }
+                    }
+                }
+            }
+        }
 
         stage('Deploy') {
             // No Docker: runs on host where Jenkins user exists in /etc/passwd (fixes uv_os_get_passwd)
